@@ -1,0 +1,16 @@
+[Unit]
+Description=php-fpm-exporter service
+Wants=network-online.target
+After=network-online.target
+
+
+[Service]
+User=root
+Group=root
+Type=simple
+ExecStart=/usr/local/bin/php-fpm_exporter_1.2.1_linux_amd64 server \
+--phpfpm.scrape-uri 'unix:///var/run/php/php7.4-fpm-magento.sock;/status?full' \
+--phpfpm.fix-process-count true
+    
+[Install]
+WantedBy=multi-user.target

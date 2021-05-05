@@ -1,0 +1,42 @@
+---
+- hosts: abr
+  become: True
+  become_user: root
+  tasks:
+    - name: download promatail
+      get_url:
+        url: https://github.com/grafana/loki/releases/download/v1.6.1/promtail-linux-amd64.zip
+        dest: /tmp
+    - name: unarchive promtail
+      unarchive:
+        remote_src: yes
+        src: /tmp/promtail-linux-amd64.zip
+        dest: /tmp
+    - name: move promtail to /usr/local/bin
+      copy:
+        src: /tmp/promtail-linux-amd64
+        dest: /usr/local/bin/
+        remote_src: yes
+        owner: root
+        group: root
+        mode: 0755
+    - name: create config-promtail.yml file 
+      template:
+        src: templates/config-promtail.j2
+        dest: /usr/local/bin/config-promtail.yml
+        owner: root
+        group: root
+        mode: 0600
+    - name: install unit file to systemd
+      template:
+        src: templates/promtail.service.j2
+        dest: /etc/systemd/system/promtail.service
+        owner: root
+        group: root
+        mode: 0600
+    - name: configure systemd to use service
+      systemd:
+        daemon_reload: yes
+        enabled: yes
+        state: started
+        name: promtail.service

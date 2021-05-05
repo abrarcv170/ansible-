@@ -1,0 +1,18 @@
+---
+- hosts: abr
+  become: True
+  become_user: root
+  tasks:
+    - name: Install the package "prometheus-varnish-exporter"
+      apt:
+          name: prometheus-varnish-exporter
+          state: present
+    - name: start prometheus-varnish-exporter
+      service:
+          name: prometheus-varnish-exporter
+          state: started
+    - name: adding existing user 'prometheus' to group varnish
+      user:
+        name: prometheus
+        groups: varnish
+        append: yes
